@@ -17,6 +17,10 @@ find_package(std_srvs REQUIRED)
 
 set(msg_files
   "src/ars_systems/msg/ARS.msg"
+  "src/wrs_systems/msg/WasteCollection.msg"
+  "src/wrs_systems/msg/ProcessWater.msg"
+  "src/wrs_systems/msg/StorageStatus.msg"
+  "src/wrs_systems/msg/Filteration.srv"
 
 )
 
@@ -39,9 +43,25 @@ add_executable(baking_process src/ars_systems/baking_process.cpp)
 ament_target_dependencies(baking_process std_srvs rosidl_default_generators rclcpp sensor_msgs)
 rosidl_target_interfaces(baking_process ${PROJECT_NAME} "rosidl_typesupport_cpp")
 
+add_executable(water_level src/wrs_systems/src/water_status.cpp)
+ament_target_dependencies(water_level rosidl_default_generators rclcpp sensor_msgs)
+rosidl_target_interfaces(water_level ${PROJECT_NAME} "rosidl_typesupport_cpp")
+
+add_executable(process_water src/wrs_systems/src/process_water.cpp)
+ament_target_dependencies(process_water rosidl_default_generators rclcpp sensor_msgs)
+rosidl_target_interfaces(process_water ${PROJECT_NAME} "rosidl_typesupport_cpp")
+
+
+add_executable(filteration src/wrs_systems/src/filteration.cpp)
+ament_target_dependencies(filteration rosidl_default_generators rclcpp sensor_msgs)
+rosidl_target_interfaces(filteration ${PROJECT_NAME} "rosidl_typesupport_cpp")
+
 install(TARGETS
   ars_system
   baking_process
+  water_level
+  filteration 
+  process_water
   DESTINATION lib/${PROJECT_NAME})
 
 install(DIRECTORY launch/
