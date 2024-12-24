@@ -43,9 +43,9 @@ add_executable(baking_process src/ars_systems/baking_process.cpp)
 ament_target_dependencies(baking_process std_srvs rosidl_default_generators rclcpp sensor_msgs)
 rosidl_target_interfaces(baking_process ${PROJECT_NAME} "rosidl_typesupport_cpp")
 
-add_executable(water_level src/wrs_systems/src/water_status.cpp)
-ament_target_dependencies(water_level rosidl_default_generators rclcpp sensor_msgs)
-rosidl_target_interfaces(water_level ${PROJECT_NAME} "rosidl_typesupport_cpp")
+add_executable(waste_collector src/wrs_systems/src/waste_collection.cpp)
+ament_target_dependencies(waste_collector rosidl_default_generators rclcpp sensor_msgs)
+rosidl_target_interfaces(waste_collector ${PROJECT_NAME} "rosidl_typesupport_cpp")
 
 add_executable(process_water src/wrs_systems/src/process_water.cpp)
 ament_target_dependencies(process_water rosidl_default_generators rclcpp sensor_msgs)
@@ -59,7 +59,7 @@ rosidl_target_interfaces(filteration ${PROJECT_NAME} "rosidl_typesupport_cpp")
 install(TARGETS
   ars_system
   baking_process
-  water_level
+  waste_collector
   filteration 
   process_water
   DESTINATION lib/${PROJECT_NAME})
