@@ -5,33 +5,35 @@ WaterProcessor::WaterProcessor()
   processing_rate_(0.8)
   {
     // processor_=this->create_publisher<space_station_eclss::msg::ProcessWater>("/process_water", 10);
-    storage_sub_ = this->create_subscription<space_station_eclss::msg::StorageStatus>(
-        "/storage_status", 10, std::bind(&WaterProcessor::get_waste_, this, std::placeholders::_1));
+    // storage_sub_ = this->create_subscription<space_station_eclss::msg::StorageStatus>(
+    //     "/storage_status", 10, std::bind(&WaterProcessor::get_waste_, this, std::placeholders::_1));
 
     waste_water_process_=this->create_client<space_station_eclss::srv::Filteration>("/waste_water_process");
 
     // timer_=this->create_wall_timer(1s, std::bind(&WaterProcessor::water_process, this));
+     waste_sub_ = this->create_subscription<space_station_eclss::msg::WasteCollection>(
+        "/waste_collection", 10, std::bind(&WaterProcessor::water_process, this, std::placeholders::_1));
 
-    processed_level_=100.0;
-    waste_storage_level_=100.0;
+    processed_level_=0.0;
+    waste_storage_level_=0.0;
     status_=0;
 
     RCLCPP_INFO(this->get_logger(), "Water Processor Initialized");
   
   }
 
-  void WaterProcessor::get_waste_(const space_station_eclss::msg::StorageStatus::SharedPtr msg){
-    waste_storage_level_=msg->tank_2;
-    processed_level_=msg->tank_1;
-    status_=msg->status;
-    RCLCPP_INFO(this->get_logger(),"Status of tank A: %f, Status of tank B: %f",processed_level_,waste_storage_level_);
+//   void WaterProcessor::get_waste_(const space_station_eclss::msg::StorageStatus::SharedPtr msg){
+//     waste_storage_level_=msg->tank_2;
+//     processed_level_=msg->tank_1;
+//     status_=msg->status;
+//     RCLCPP_INFO(this->get_logger(),"Status of tank A: %f, Status of tank B: %f",processed_level_,waste_storage_level_);
 
-  }
+//   }
 
-  void WaterProcessor::water_process() {
+  void WaterProcessor::water_process(const space_station_eclss::msg::WasteCollection::SharedPtr msg) {
     
-
-    switch (status_) {
+    RCLCPP_INFO(this->get_logger(), "Processing waste water from source: %u", msg->source);
+    switch (msg->source) {
         case 0: // Urine Processing
             processing_rate_ = 0.5; // 50% efficiency
             break;

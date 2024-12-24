@@ -12,7 +12,7 @@ WasteCollection::WasteCollection() : Node("waste_collection") {
     storage_status_pub_ = this->create_publisher<space_station_eclss::msg::StorageStatus>("/storage_status", 10);
 
     
-    timer_ = this->create_wall_timer(1s, std::bind(&WasteCollection::simulate_waste_collection, this));
+    timer_ = this->create_wall_timer(5s, std::bind(&WasteCollection::simulate_waste_collection, this));
 
     RCLCPP_INFO(this->get_logger(), "Waste Collection Node Initialized");
 }
@@ -34,8 +34,8 @@ void WasteCollection::simulate_waste_collection() {
             waste_map_["Humidity Condensate"] += msg.volume;
             break;
 
-        case 3:
-            msg.source = 3;  
+        case 2:
+            msg.source = 2;  
             msg.volume = 100.0;  
             waste_map_["Bath/Wash"] += msg.volume;
             break;
@@ -52,13 +52,8 @@ void WasteCollection::simulate_waste_collection() {
     RCLCPP_INFO(this->get_logger(), "Collected %.2f liters from source: %u. Total Volume: %.2f liters.",
                 msg.volume, msg.source, total_volume_);
 
-    source_ = (source_ == 3) ? 0 : source_ + 1;
-
     
-    publish_storage_status();
-}
-
-void WasteCollection::publish_storage_status() {
+    
     auto storage_msg = space_station_eclss::msg::StorageStatus();
 
     
@@ -74,9 +69,30 @@ void WasteCollection::publish_storage_status() {
    
     storage_status_pub_->publish(storage_msg);
 
-    // Log the updated storage status
     RCLCPP_INFO(this->get_logger(), "Tank 2 (Waste Collector) Status Updated: %.2f liters.", storage_msg.tank_2);
+    source_ = (source_ == 2) ? 0 : source_ + 1;
+
 }
+
+// void WasteCollection::publish_storage_status() {
+//     auto storage_msg = space_station_eclss::msg::StorageStatus();
+
+    
+//     storage_msg.tank_1 = 0.0;          
+//     storage_msg.tank_2 = total_volume_;  
+
+//     if (total_volume_ > 200.0) {
+//         storage_msg.status = 1;  
+//     } else {
+//         storage_msg.status = 0;
+//     }
+     
+   
+//     storage_status_pub_->publish(storage_msg);
+
+//     // Log the updated storage status
+//     RCLCPP_INFO(this->get_logger(), "Tank 2 (Waste Collector) Status Updated: %.2f liters.", storage_msg.tank_2);
+// }
 
 int main(int argc, char **argv) {
     rclcpp::init(argc, argv);
