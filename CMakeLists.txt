@@ -17,10 +17,12 @@ find_package(std_srvs REQUIRED)
 
 set(msg_files
   "src/ars_systems/msg/ARS.msg"
+  "src/ars_systems/msg/Bake.srv"
   "src/wrs_systems/msg/WasteCollection.msg"
   "src/wrs_systems/msg/ProcessWater.msg"
   "src/wrs_systems/msg/StorageStatus.msg"
   "src/wrs_systems/msg/Filteration.srv"
+
 
 )
 
@@ -69,7 +71,7 @@ install(DIRECTORY launch/
 )
 
 install(DIRECTORY config/
-  DESTINATION share/${PROJECT_NAME}/launch
+  DESTINATION share/${PROJECT_NAME}/config
 )
 
 if(BUILD_TESTING)

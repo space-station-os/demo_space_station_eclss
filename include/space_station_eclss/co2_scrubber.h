@@ -6,7 +6,7 @@
 #include <functional>
 #include "rclcpp/rclcpp.hpp"
 #include "space_station_eclss/msg/ars.hpp"
-#include "std_srvs/srv/trigger.hpp"
+#include "space_station_eclss/srv/bake.hpp"
 #include <random> 
 
 using namespace std::chrono_literals;
@@ -20,8 +20,8 @@ class Co2Scrubber : public rclcpp::Node{
         void simulate_ars(); 
         void bake_gas();
         void handle_zeolite_efficiency(
-            const std::shared_ptr<std_srvs::srv::Trigger::Request>request,
-            std::shared_ptr<std_srvs::srv::Trigger::Response> response);
+            const std::shared_ptr<space_station_eclss::srv::Bake::Request>request,
+            std::shared_ptr<space_station_eclss::srv::Bake::Response> response);
 
 
         //Parameters
@@ -33,11 +33,12 @@ class Co2Scrubber : public rclcpp::Node{
         double scrubber_efficiency_; //scrubber efficiency percentage 
         double temperature_; 
         double humidity_;
+        bool stop_baking_;
 
         rclcpp::Publisher<space_station_eclss::msg::ARS>::SharedPtr ars_data_pub_;
-        rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr efficiency_service_;
+        rclcpp::Service<space_station_eclss::srv::Bake>::SharedPtr efficiency_service_;
         rclcpp::TimerBase::SharedPtr timer_; 
-        rclcpp::Client<std_srvs::srv::Trigger>::SharedPtr bakery_;
+        rclcpp::Client<space_station_eclss::srv::Bake>::SharedPtr bakery_;
 
 
 };
