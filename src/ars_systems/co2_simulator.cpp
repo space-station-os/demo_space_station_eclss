@@ -1,4 +1,4 @@
-#include "space_station_eclss/co2_scrubber.h"
+#include "nova_sanctum/co2_scrubber.h"
 
 Co2Scrubber::Co2Scrubber()
     : Node("ars_system"),
@@ -10,12 +10,12 @@ Co2Scrubber::Co2Scrubber()
       temperature_(declare_parameter<double>("station_temperature", 22.0)),
       humidity_(declare_parameter<double>("station_humidity", 50.0))
 {
-    ars_data_pub_ = this->create_publisher<space_station_eclss::msg::ARS>("/ars_system", 10);
+    ars_data_pub_ = this->create_publisher<nova_sanctum::msg::ARS>("/ars_system", 10);
 
     timer_ = this->create_wall_timer(
         1s, std::bind(&Co2Scrubber::simulate_ars, this));
 
-    bakery_ = this->create_client<space_station_eclss::srv::Bake>("/check_efficiency");
+    bakery_ = this->create_client<nova_sanctum::srv::Bake>("/check_efficiency");
 
     RCLCPP_INFO(this->get_logger(), "AIR REVITALIZATION SYSTEM INITIALIZED");
 }
@@ -35,7 +35,7 @@ void Co2Scrubber::simulate_ars()
     }
 
     // Publish ARS data
-    auto msg = space_station_eclss::msg::ARS();
+    auto msg = nova_sanctum::msg::ARS();
     msg.co2 = co2_level_;
     msg.temperature.temperature = temperature_;
     msg.temperature.header.stamp = this->now();
@@ -58,12 +58,12 @@ void Co2Scrubber::bake_gas()
         return;
     }
 
-    auto request = std::make_shared<space_station_eclss::srv::Bake::Request>();
+    auto request = std::make_shared<nova_sanctum::srv::Bake::Request>();
     request->co2_level = co2_level_;
 
     auto result_future = bakery_->async_send_request(
         request,
-        [this](rclcpp::Client<space_station_eclss::srv::Bake>::SharedFuture future_response) {
+        [this](rclcpp::Client<nova_sanctum::srv::Bake>::SharedFuture future_response) {
             try
             {
                 auto res = future_response.get();

@@ -5,8 +5,8 @@
 #include <chrono>
 #include <functional>
 #include "rclcpp/rclcpp.hpp"
-#include "space_station_eclss/msg/ars.hpp"
-#include "space_station_eclss/srv/bake.hpp"
+#include "nova_sanctum/msg/ars.hpp"
+#include "nova_sanctum/srv/bake.hpp"
 #include <random> 
 
 using namespace std::chrono_literals;
@@ -20,8 +20,8 @@ class Co2Scrubber : public rclcpp::Node{
         void simulate_ars(); 
         void bake_gas();
         void handle_zeolite_efficiency(
-            const std::shared_ptr<space_station_eclss::srv::Bake::Request>request,
-            std::shared_ptr<space_station_eclss::srv::Bake::Response> response);
+            const std::shared_ptr<nova_sanctum::srv::Bake::Request>request,
+            std::shared_ptr<nova_sanctum::srv::Bake::Response> response);
 
 
         //Parameters
@@ -35,10 +35,10 @@ class Co2Scrubber : public rclcpp::Node{
         double humidity_;
         bool stop_baking_;
 
-        rclcpp::Publisher<space_station_eclss::msg::ARS>::SharedPtr ars_data_pub_;
-        rclcpp::Service<space_station_eclss::srv::Bake>::SharedPtr efficiency_service_;
+        rclcpp::Publisher<nova_sanctum::msg::ARS>::SharedPtr ars_data_pub_;
+        rclcpp::Service<nova_sanctum::srv::Bake>::SharedPtr efficiency_service_;
         rclcpp::TimerBase::SharedPtr timer_; 
-        rclcpp::Client<space_station_eclss::srv::Bake>::SharedPtr bakery_;
+        rclcpp::Client<nova_sanctum::srv::Bake>::SharedPtr bakery_;
 
 
 };

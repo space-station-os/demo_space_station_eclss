@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>space_station_eclss</name>
+  <name>nova_sanctum</name>
   <version>0.0.0</version>
-  <description>space_station_eclss</description>
+  <description>Environmental Control and Life support systems onboard space station</description>
   <maintainer email="siddarth.dayasagar@gmail.com">siddarth</maintainer>
   <license>MIT</license>
   <!-- License to be declared by space_station_os -->

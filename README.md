@@ -191,5 +191,4 @@ ros2 launch space_station_eclss ars_system.launch.py
 
 ---
 
-Thank you for reviewing this contribution! Let us know if you have any feedback or questions.
 
