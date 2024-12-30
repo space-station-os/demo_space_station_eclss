@@ -1,10 +1,10 @@
-#include "space_station_eclss/co2_scrubber.h"
+#include "nova_sanctum/co2_scrubber.h"
 
 Co2Scrubber::Co2Scrubber()
     : Node("baking_process"),
       scrubber_efficiency_(declare_parameter<double>("scrubber_efficiency", 0.9))
 {
-    efficiency_service_ = this->create_service<space_station_eclss::srv::Bake>(
+    efficiency_service_ = this->create_service<nova_sanctum::srv::Bake>(
         "/check_efficiency",
         std::bind(&Co2Scrubber::handle_zeolite_efficiency, this, std::placeholders::_1, std::placeholders::_2));
 
@@ -12,8 +12,8 @@ Co2Scrubber::Co2Scrubber()
 }
 
 void Co2Scrubber::handle_zeolite_efficiency(
-    const std::shared_ptr<space_station_eclss::srv::Bake::Request> req,
-    std::shared_ptr<space_station_eclss::srv::Bake::Response> res)
+    const std::shared_ptr<nova_sanctum::srv::Bake::Request> req,
+    std::shared_ptr<nova_sanctum::srv::Bake::Response> res)
 {
     RCLCPP_INFO(this->get_logger(), "Bake request received. Initial CO2 level: %.2f ppm", req->co2_level);
 

@@ -1,20 +1,20 @@
-#include "space_station_eclss/filteration.h"
+#include "nova_sanctum/filteration.h"
 
 Filtration::Filtration()
 : Node("filtration_node"){
     // Service server for water filtration
-    waste_water_process_server_ = this->create_service<space_station_eclss::srv::Filteration>(
+    waste_water_process_server_ = this->create_service<nova_sanctum::srv::Filteration>(
         "/waste_water_process", std::bind(&Filtration::process_water_server_, this, std::placeholders::_1, std::placeholders::_2));
 
     // Publisher for water levels
-    storage_status_pub_ = this->create_publisher<space_station_eclss::msg::StorageStatus>("/storage_status", 10);
-    storage_sub_ = this->create_subscription<space_station_eclss::msg::StorageStatus>(
+    storage_status_pub_ = this->create_publisher<nova_sanctum::msg::StorageStatus>("/storage_status", 10);
+    storage_sub_ = this->create_subscription<nova_sanctum::msg::StorageStatus>(
         "/storage_status", 10, std::bind(&Filtration::get_waste_, this, std::placeholders::_1));
 
     RCLCPP_INFO(this->get_logger(), "Filtration Node Initialized");
 }
 
-void Filtration::get_waste_(const space_station_eclss::msg::StorageStatus::SharedPtr msg){
+void Filtration::get_waste_(const nova_sanctum::msg::StorageStatus::SharedPtr msg){
     waste_water_level_=msg->tank_2;
     clean_water_level_=msg->tank_1;
     status_=msg->status;
@@ -23,7 +23,7 @@ void Filtration::get_waste_(const space_station_eclss::msg::StorageStatus::Share
 }
 
 void Filtration::publish_water_levels() {
-    auto msg = space_station_eclss::msg::StorageStatus();
+    auto msg = nova_sanctum::msg::StorageStatus();
     msg.tank_1 = clean_water_level_;  // Clean water tank
     msg.tank_2 = waste_water_level_;  // Waste water tank
 
@@ -34,8 +34,8 @@ void Filtration::publish_water_levels() {
 }
 
 void Filtration::process_water_server_(
-    const std::shared_ptr<space_station_eclss::srv::Filteration::Request> request,
-    std::shared_ptr<space_station_eclss::srv::Filteration::Response> response) {
+    const std::shared_ptr<nova_sanctum::srv::Filteration::Request> request,
+    std::shared_ptr<nova_sanctum::srv::Filteration::Response> response) {
     float processing_rate = request->processing_rate;
 
     RCLCPP_INFO(this->get_logger(),"Filteration service called with processing rate: %.2f", processing_rate);

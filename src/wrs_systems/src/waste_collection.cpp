@@ -1,4 +1,4 @@
-#include "space_station_eclss/waste_collector.h"
+#include "nova_sanctum/waste_collector.h"
 
 WasteCollection::WasteCollection() : Node("waste_collection") {
    
@@ -7,9 +7,9 @@ WasteCollection::WasteCollection() : Node("waste_collection") {
 
     waste_map_ = {{"Urine", 0.0}, {"Humidity Condensate", 0.0}, {"Bath/Wash", 0.0}};
 
-    waste_collection_pub_ = this->create_publisher<space_station_eclss::msg::WasteCollection>("/waste_collection", 10);
+    waste_collection_pub_ = this->create_publisher<nova_sanctum::msg::WasteCollection>("/waste_collection", 10);
 
-    storage_status_pub_ = this->create_publisher<space_station_eclss::msg::StorageStatus>("/storage_status", 10);
+    storage_status_pub_ = this->create_publisher<nova_sanctum::msg::StorageStatus>("/storage_status", 10);
 
     
     timer_ = this->create_wall_timer(5s, std::bind(&WasteCollection::simulate_waste_collection, this));
@@ -18,7 +18,7 @@ WasteCollection::WasteCollection() : Node("waste_collection") {
 }
 
 void WasteCollection::simulate_waste_collection() {
-    auto msg = space_station_eclss::msg::WasteCollection();
+    auto msg = nova_sanctum::msg::WasteCollection();
 
     // Simulate waste collection from different sources
     switch (source_) {
@@ -54,7 +54,7 @@ void WasteCollection::simulate_waste_collection() {
 
     
     
-    auto storage_msg = space_station_eclss::msg::StorageStatus();
+    auto storage_msg = nova_sanctum::msg::StorageStatus();
 
     
     storage_msg.tank_1 = 0.0;          
@@ -75,7 +75,7 @@ void WasteCollection::simulate_waste_collection() {
 }
 
 // void WasteCollection::publish_storage_status() {
-//     auto storage_msg = space_station_eclss::msg::StorageStatus();
+//     auto storage_msg = nova_sanctum::msg::StorageStatus();
 
     
 //     storage_msg.tank_1 = 0.0;          
