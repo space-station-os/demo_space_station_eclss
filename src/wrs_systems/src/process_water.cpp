@@ -1,17 +1,17 @@
-#include "nova_sanctum/process_water.h"
+#include "demo_nova_sanctum/process_water.h"
 
 WaterProcessor::WaterProcessor()
 : Node ("water_processor"),
   processing_rate_(0.8)
   {
-    // processor_=this->create_publisher<nova_sanctum::msg::ProcessWater>("/process_water", 10);
-    // storage_sub_ = this->create_subscription<nova_sanctum::msg::StorageStatus>(
+    // processor_=this->create_publisher<demo_nova_sanctum::msg::ProcessWater>("/process_water", 10);
+    // storage_sub_ = this->create_subscription<demo_nova_sanctum::msg::StorageStatus>(
     //     "/storage_status", 10, std::bind(&WaterProcessor::get_waste_, this, std::placeholders::_1));
 
-    waste_water_process_=this->create_client<nova_sanctum::srv::Filteration>("/waste_water_process");
+    waste_water_process_=this->create_client<demo_nova_sanctum::srv::Filteration>("/waste_water_process");
 
     // timer_=this->create_wall_timer(1s, std::bind(&WaterProcessor::water_process, this));
-     waste_sub_ = this->create_subscription<nova_sanctum::msg::WasteCollection>(
+     waste_sub_ = this->create_subscription<demo_nova_sanctum::msg::WasteCollection>(
         "/waste_collection", 10, std::bind(&WaterProcessor::water_process, this, std::placeholders::_1));
 
     processed_level_=0.0;
@@ -22,7 +22,7 @@ WaterProcessor::WaterProcessor()
   
   }
 
-//   void WaterProcessor::get_waste_(const nova_sanctum::msg::StorageStatus::SharedPtr msg){
+//   void WaterProcessor::get_waste_(const demo_nova_sanctum::msg::StorageStatus::SharedPtr msg){
 //     waste_storage_level_=msg->tank_2;
 //     processed_level_=msg->tank_1;
 //     status_=msg->status;
@@ -30,7 +30,7 @@ WaterProcessor::WaterProcessor()
 
 //   }
 
-  void WaterProcessor::water_process(const nova_sanctum::msg::WasteCollection::SharedPtr msg) {
+  void WaterProcessor::water_process(const demo_nova_sanctum::msg::WasteCollection::SharedPtr msg) {
     
     RCLCPP_INFO(this->get_logger(), "Processing waste water from source: %u", msg->source);
     switch (msg->source) {
@@ -66,7 +66,7 @@ WaterProcessor::WaterProcessor()
     }
 
     
-    auto request = std::make_shared<nova_sanctum::srv::Filteration::Request>();
+    auto request = std::make_shared<demo_nova_sanctum::srv::Filteration::Request>();
     request->processing_rate = processing_rate_;
 
     

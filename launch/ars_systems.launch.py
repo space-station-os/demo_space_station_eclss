@@ -5,14 +5,14 @@ import os
 
 def generate_launch_description():
     params_file = os.path.join(
-        get_package_share_directory('space_station_eclss'),
+        get_package_share_directory('demo_nova_sanctum'),
         'config',
         'ars_sys_params.yaml'
     )
 
     return LaunchDescription([
         Node(
-            package='space_station_eclss',
+            package='demo_nova_sanctum',
             executable='ars_system',
             name='ars_system',
             output='screen',
@@ -21,7 +21,7 @@ def generate_launch_description():
         ),
 
         Node(
-            package='space_station_eclss',
+            package='demo_nova_sanctum',
             executable='baking_process',
             name='baking_process',
             output='screen',

@@ -5,7 +5,7 @@ def generate_launch_description():
     return LaunchDescription([
         # Node to start the ARS system (ars_system node)
         Node(
-            package='space_station_eclss',
+            package='demo_nova_sanctum',
             executable='waste_collector',
             name='waste_collection',
             output='screen',
@@ -14,7 +14,7 @@ def generate_launch_description():
         ),
         # Node to start the baking process (baking_process node)
         Node(
-            package='space_station_eclss',
+            package='demo_nova_sanctum',
             executable='filteration',
             name='filteration_node',
             output='screen',
@@ -22,7 +22,7 @@ def generate_launch_description():
         ),
         
          Node(
-            package='space_station_eclss',
+            package='demo_nova_sanctum',
             executable='process_water',
             name='process_water_node',
             output='screen',
