@@ -70,7 +70,7 @@ The baking process node:
 
 ### Published Topics
 1. **`/ars_system`**:
-   - **Type**: `space_station_eclss/msg/ARS`
+   - **Type**: `demo_nova_sanctum/msg/ARS`
    - **Description**: Publishes real-time environmental data, including:
      - Current CO2 level (ppm).
      - Temperature (°C) with variance.
@@ -82,12 +82,13 @@ The baking process node:
 
 ### Provided Services
 1. **`/check_efficiency`** (Baking Process Node):
-   - **Type**: `std_srvs/srv/Trigger`
+   - **Type**: `demo_nova_sanctum/srv/Bake.srv`
    - **Description**: Handles CO2 reduction requests.
-     - **Request**: Empty (Trigger service).
+     - **Request**: Takes in CO2 levels
      - **Response**:
        - `success`: Boolean indicating if the baking was successful.
        - `message`: Status message describing the result.
+       - `reduced_level`: Reduced carbon levels 
 
 ---
 
@@ -113,7 +114,8 @@ The **ARS system node** simulates and publishes environmental conditions:
 The **baking process node** simulates the CO2 scrubbing process:
 
 1. **CO2 Reduction**:
-   - Simulates an 80% chance of successfully reducing CO2 by 30%.
+   - Simulates an 80% chance of successfully reducing CO2 by 30%. 
+     - [TODO: Enchancement for finding the fault of the system]
 
 2. **Response Handling**:
    - Returns the updated CO2 level and success status to the ARS system node.
@@ -124,6 +126,7 @@ The **baking process node** simulates the CO2 scrubbing process:
 
 ### YAML Configuration
 Parameters are configured via a YAML file (`config/ars_params.yaml`):
+ - Need to update this for realistic scenario (VERSION 2)
 
 ```yaml
 ars_system:
@@ -152,7 +155,7 @@ source install/setup.bash
 
 ### Step 3: Launch the Nodes
 ```bash
-ros2 launch space_station_eclss ars_system.launch.py
+ros2 launch demo_nova_system ars_system.launch.py
 ```
 
 ---
@@ -169,8 +172,11 @@ ros2 launch space_station_eclss ars_system.launch.py
 
 ### Baking Process Node
 ```plaintext
-[INFO] [baking_process]: Bake request received. Initial CO2 level: 800.00 ppm.
-[INFO] [baking_process]: Bake request handled successfully. CO2 reduced from 800.00 ppm to 560.00 ppm.
+[ars_system-1] [INFO] [1736098362.184649544] [ars_system]: Bake process successful: Baking CO2 successful. Initial CO2 level: 657.50 ppm. Reduced to: 591.75 ppm.
+[ars_system-1] [WARN] [1736098363.183367642] [ars_system]: Critical CO2 level reached: 596.75 ppm. Immediate action required!
+[ars_system-1] [INFO] [1736098363.183905755] [ars_system]: Co2: 596.75 ppm 
+
+
 ```
 
 ---
