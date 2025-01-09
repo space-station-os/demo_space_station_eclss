@@ -1,4 +1,4 @@
-#include "demo_nova_sanctum/adsorbent_bed.hpp"
+#include "demo_nova_sanctum/adsorbent_tank.h"
 
 AdsorbentBed::AdsorbentBed()
 : Node("adsorbent_bed"),
@@ -35,8 +35,7 @@ void AdsorbentBed::air_data_callback(const demo_nova_sanctum::msg::AirData::Shar
   new_msg.co2_mass = co2_for_processing;
   new_msg.moisture_content = 0.0; // No moisture should remain
   new_msg.contaminants = 0.0;    // No contaminants should remain
-  new_msg.flow_rate = msg->flow_rate;
-  new_msg.pressure = msg->pressure;
+  
   new_msg.temperature = msg->temperature;
   new_msg.dew_point = msg->dew_point;
 

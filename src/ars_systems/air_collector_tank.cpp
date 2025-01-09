@@ -27,7 +27,7 @@ AirPublisher::AirPublisher()
   // ROS publishers and clients
   unpure_air_publisher_ = this->create_publisher<demo_nova_sanctum::msg::AirData>("/unpure_air", 10);
   desiccant_server_client_ = this->create_client<std_srvs::srv::Trigger>("/desiccant_server");
-  adsorbent_server_client_ = this->create_client<std_srvs::srv/Trigger>("/adsorbent_server");
+  adsorbent_server_client_ = this->create_client<std_srvs::srv::Trigger>("/adsorbent_server");
 
   // ROS timer
   timer_ = this->create_wall_timer(1s, std::bind(&AirPublisher::timer_callback, this));
@@ -58,6 +58,9 @@ void AirPublisher::timer_callback() {
 
   // Create and publish the air data message
   auto message = demo_nova_sanctum::msg::AirData();
+  message.header.stamp = this->get_clock()->now();
+  message.header.frame_id = "air_collector_tank";
+
   message.co2_mass = co2_mass_;
   message.moisture_content = moisture_content_;
   message.contaminants = contaminants_;
@@ -73,8 +76,9 @@ void AirPublisher::timer_callback() {
   if (total_air_mass_ >= tank_capacity_) {
     RCLCPP_WARN(this->get_logger(), "Tank capacity reached! Triggering servers and opening valve...");
     trigger_server("/desiccant_server", desiccant_server_client_);
-    trigger_server("/adsorbent_server", adsorbent_server_client_);
+    // trigger_server("/adsorbent_server", adsorbent_server_client_);
     open_valve();
+    RCLCPP_INFO(this->get_logger(), "Air released successfully.and tank capacity now = ", total_air_mass_);
   }
 }
 

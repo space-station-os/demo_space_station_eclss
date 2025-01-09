@@ -7,14 +7,14 @@ def generate_launch_description():
     params_file = os.path.join(
         get_package_share_directory('demo_nova_sanctum'),
         'config',
-        'ars_sys_params.yaml'
+        'ars_sys.yaml'
     )
 
     return LaunchDescription([
         Node(
             package='demo_nova_sanctum',
-            executable='ars_system',
-            name='ars_system',
+            executable='collector',
+            name='air_collector',
             output='screen',
             parameters=[params_file],
             emulate_tty=True
@@ -22,9 +22,17 @@ def generate_launch_description():
 
         Node(
             package='demo_nova_sanctum',
-            executable='baking_process',
-            name='baking_process',
+            executable='desiccant',
+            name='desiccant_bed',
             output='screen',
             emulate_tty=True
         ),
+        
+        # Node(
+        #     package='demo_nova_sanctum',
+        #     executable='adsorbent',
+        #     name='adsorbent_bed',
+        #     output='screen',
+        #     emulate_tty=True
+        # ),
     ])

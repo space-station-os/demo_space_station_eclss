@@ -1,9 +1,10 @@
-#include "demo_nova_sanctum/desiccant_server.hpp"
+#include "demo_nova_sanctum/desiccant_tank.h"
+#include <mutex> // Include for mutex
 
 DesiccantServer::DesiccantServer()
 : Node("desiccant_server"),
-  moisture_removal_rate_(this->declare_parameter<double>("moisture_removal_rate", 0.95)), // 95% removal
-  contaminant_removal_rate_(this->declare_parameter<double>("contaminant_removal_rate", 0.90)), // 90% removal
+  moisture_removal_rate_(this->declare_parameter<double>("moisture_removal_rate", 0.95)), // 95% total removal
+  contaminant_removal_rate_(this->declare_parameter<double>("contaminant_removal_rate", 0.90)), // 90% total removal
   is_active_(false) {
 
   // Subscriber to the /unpure_air topic
@@ -20,44 +21,83 @@ DesiccantServer::DesiccantServer()
 }
 
 void DesiccantServer::air_data_callback(const demo_nova_sanctum::msg::AirData::SharedPtr msg) {
-  if (!is_active_) {
-    RCLCPP_WARN(this->get_logger(), "Desiccant server is not active. Ignoring incoming data.");
-    return;
+  
+  co2_ = msg->co2_mass;
+  moisture_content_ = msg->moisture_content;
+  contaminants_ = msg->contaminants;
+  temperature_ = msg->temperature;
+  dew_point_ = msg->dew_point;
+
+  RCLCPP_INFO(this->get_logger(), "Received air data: CO2: %.2f g, Moisture: %.2f %%, Contaminants: %.2f %%",
+              co2_, moisture_content_, contaminants_);
+}
+
+void DesiccantServer::process_air_data() {
+  
+  // Gradual reduction
+  double moisture_decrement = (moisture_content_ * moisture_removal_rate_) * 0.1; // 10% per step
+  double contaminants_decrement = (contaminants_ * contaminant_removal_rate_) * 0.1; // 10% per step
+
+  moisture_content_ -= moisture_decrement;
+  contaminants_ -= contaminants_decrement;
+
+  // Ensure no negative values
+  if (moisture_content_ < 0.0) {
+    moisture_content_ = 0.0;
+  }
+  if (contaminants_ < 0.0) {
+    contaminants_ = 0.0;
   }
 
-  // Remove moisture and contaminants from the air
-  double remaining_co2_mass = msg->co2_mass;
-  double removed_moisture = msg->moisture_content * moisture_removal_rate_;
-  double removed_contaminants = msg->contaminants * contaminant_removal_rate_;
-
-  // Publish the remaining CO2 content
-  auto new_msg = demo_nova_sanctum::msg::AirData();
-  new_msg.co2_mass = remaining_co2_mass;
-  new_msg.moisture_content = msg->moisture_content - removed_moisture;
-  new_msg.contaminants = msg->contaminants - removed_contaminants;
-  
-  
-  new_msg.temperature = msg->temperature;
-  new_msg.dew_point = msg->dew_point;
+  // Prepare the processed message
+  demo_nova_sanctum::msg::AirData processed_msg;
+  processed_msg.co2_mass = co2_; // CO2 remains unchanged in desiccant bed
+  processed_msg.moisture_content = moisture_content_;
+  processed_msg.contaminants = contaminants_;
+  processed_msg.temperature = temperature_;
+  processed_msg.dew_point = dew_point_;
 
   RCLCPP_INFO(this->get_logger(),
               "Processed air data: CO2: %.2f g, Remaining Moisture: %.2f %%, Remaining Contaminants: %.2f %%",
-              new_msg.co2_mass, new_msg.moisture_content, new_msg.contaminants);
+              processed_msg.co2_mass, processed_msg.moisture_content, processed_msg.contaminants);
 
-  removed_moisture_publisher_->publish(new_msg);
+  // Publish the processed data
+  removed_moisture_publisher_->publish(processed_msg);
 }
 
 void DesiccantServer::trigger_callback(const std_srvs::srv::Trigger::Request::SharedPtr request,
-                                       std_srvs::srv::Trigger::Response::SharedPtr response) {
-  RCLCPP_INFO(this->get_logger(), "Received trigger to activate the desiccant server.");
-  is_active_ = true;
-  response->success = true;
-  response->message = "Desiccant server activated successfully.";
+                                       const std_srvs::srv::Trigger::Response::SharedPtr response) {
+  if (!is_active_) {
+    is_active_ = true;
+    response->success = true;
+    response->message = "Desiccant bed activated successfully.";
+
+    RCLCPP_INFO(this->get_logger(), "Desiccant bed activated. Starting timer...");
+    // Dynamically create the timer
+    timer_ = this->create_wall_timer(500ms, std::bind(&DesiccantServer::process_air_data, this));
+  } else {
+    response->success = false;
+    response->message = "Desiccant bed is already active.";
+    RCLCPP_INFO(this->get_logger(), "Desiccant bed is already active.");
+  }
 }
+
+// void DesiccantServer::deactivate() {
+//   if (is_active_) {
+//     is_active_ = false;
+//     RCLCPP_INFO(this->get_logger(), "Deactivating desiccant bed and stopping timer...");
+//     timer_.reset(); // Stop the timer
+//   }
+// }
 
 int main(int argc, char **argv) {
   rclcpp::init(argc, argv);
-  rclcpp::spin(std::make_shared<DesiccantServer>());
+  auto node = std::make_shared<DesiccantServer>();
+
+  rclcpp::spin(node);
+
+  // Ensure proper cleanup
+//   node->deactivate();
   rclcpp::shutdown();
   return 0;
 }
