@@ -1,0 +1,23 @@
+/ars_system:
+  ros__parameters:
+    # Astronaut params
+    crew_onboard: 4
+    co2_intake: 1.04 #mmHG 
+    max_crew_limit: 6 
+    
+
+    #ARSys params
+    system_name: "ARS"
+    frame_id: "ars"
+    mode_of_operation: "standby" #[standby,active,emergency]
+    adsorbent_type: "13X" #[13X,5A,APG_III,VSA-10]
+    co2_removal_rate: 4.50 #kg/day 
+    flow_rate: 28 #Standard cubic feet per minute 
+    temperature_cutoff: 450 #Celsius
+    cabin_pressure: 14.7 #PSI
+
+
+    #power_consumption
+    power_consumption: 1 #kW
+
+    

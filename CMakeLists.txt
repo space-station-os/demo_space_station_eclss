@@ -23,6 +23,8 @@ set(msg_files
   "src/wrs_systems/msg/StorageStatus.msg"
   "src/wrs_systems/msg/Filteration.srv"
 
+  "src/ars_systems/msg/AirData.msg"
+
 
 )
 
@@ -31,19 +33,26 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   DEPENDENCIES  std_msgs sensor_msgs
 )
 
+  
+
 
 
 include_directories(include)
 
-add_executable(ars_system src/ars_systems/co2_simulator.cpp)
-ament_target_dependencies(ars_system std_srvs rosidl_default_generators rclcpp sensor_msgs)
+add_executable(collector src/ars_systems/air_collector_tank.cpp)
+ament_target_dependencies(collector std_srvs rosidl_default_generators rclcpp sensor_msgs)
 
-rosidl_target_interfaces(ars_system ${PROJECT_NAME} "rosidl_typesupport_cpp")
+rosidl_target_interfaces(collector ${PROJECT_NAME} "rosidl_typesupport_cpp")
 
 
-add_executable(baking_process src/ars_systems/baking_process.cpp)
-ament_target_dependencies(baking_process std_srvs rosidl_default_generators rclcpp sensor_msgs)
-rosidl_target_interfaces(baking_process ${PROJECT_NAME} "rosidl_typesupport_cpp")
+add_executable(desiccant src/ars_systems/desiccant_tank.cpp)
+ament_target_dependencies(desiccant std_srvs rosidl_default_generators rclcpp sensor_msgs)
+rosidl_target_interfaces(desiccant ${PROJECT_NAME} "rosidl_typesupport_cpp")
+
+add_executable(adsorbent src/ars_systems/adsorbent_tank.cpp)
+ament_target_dependencies(adsorbent std_srvs rosidl_default_generators rclcpp sensor_msgs)
+rosidl_target_interfaces(adsorbent ${PROJECT_NAME} "rosidl_typesupport_cpp")
+
 
 add_executable(waste_collector src/wrs_systems/src/waste_collection.cpp)
 ament_target_dependencies(waste_collector rosidl_default_generators rclcpp sensor_msgs)
@@ -59,8 +68,10 @@ ament_target_dependencies(filteration rosidl_default_generators rclcpp sensor_ms
 rosidl_target_interfaces(filteration ${PROJECT_NAME} "rosidl_typesupport_cpp")
 
 install(TARGETS
-  ars_system
-  baking_process
+  collector
+  desiccant
+  adsorbent
+  
   waste_collector
   filteration 
   process_water
@@ -73,6 +84,9 @@ install(DIRECTORY launch/
 install(DIRECTORY config/
   DESTINATION share/${PROJECT_NAME}/config
 )
+
+
+
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
