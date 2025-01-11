@@ -27,7 +27,7 @@ AirPublisher::AirPublisher()
   // ROS publishers and clients
   unpure_air_publisher_ = this->create_publisher<demo_nova_sanctum::msg::AirData>("/unpure_air", 10);
   desiccant_server_client_ = this->create_client<std_srvs::srv::Trigger>("/desiccant_server");
-  adsorbent_server_client_ = this->create_client<std_srvs::srv::Trigger>("/adsorbent_server");
+  
 
   // ROS timer
   timer_ = this->create_wall_timer(1s, std::bind(&AirPublisher::timer_callback, this));

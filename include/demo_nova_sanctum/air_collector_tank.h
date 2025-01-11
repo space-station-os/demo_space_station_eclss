@@ -36,7 +36,7 @@ private:
   // ROS publishers, clients, and timers
   rclcpp::Publisher<demo_nova_sanctum::msg::AirData>::SharedPtr unpure_air_publisher_;
   rclcpp::Client<std_srvs::srv::Trigger>::SharedPtr desiccant_server_client_;
-  rclcpp::Client<std_srvs::srv::Trigger>::SharedPtr adsorbent_server_client_;
+  
   rclcpp::TimerBase::SharedPtr timer_;
 };
 

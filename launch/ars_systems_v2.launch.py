@@ -28,11 +28,11 @@ def generate_launch_description():
             emulate_tty=True
         ),
         
-        # Node(
-        #     package='demo_nova_sanctum',
-        #     executable='adsorbent',
-        #     name='adsorbent_bed',
-        #     output='screen',
-        #     emulate_tty=True
-        # ),
+        Node(
+            package='demo_nova_sanctum',
+            executable='adsorbent',
+            name='adsorbent_bed',
+            output='screen',
+            emulate_tty=True
+        ),
     ])

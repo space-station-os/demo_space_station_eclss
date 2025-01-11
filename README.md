@@ -1,200 +1,123 @@
-# ENVIRONMENTAL CONTROL AND LIFE SUPPORT SYSTEMS
+# ENVIRONMENTAL CONTROL AND LIFE SUPPORT SYSTEM
 
-# 1.Air Revitalization System (ARS) Module for ISS ECLSS
 
-## Overview
-The **Air Revitalization System (ARS)** module is a critical subsystem of the **Environmental Control and Life Support System (ECLSS)** onboard the International Space Station (ISS). Its primary function is to regulate atmospheric conditions by:
+## Air Revitalization System (ARS) Module - Version 2
 
-- Removing excess **carbon dioxide (CO2)** from the cabin air.
-- Maintaining optimal **temperature** and **humidity** levels.
-
-This repository simulates the functionality of the ARS module, focusing on the **4-bed molecular sieve CO2 scrubber**. The simulation is implemented using ROS 2, with nodes representing various ARS subsystems and processes.
+### Project Overview
+In this version, we introduce a comprehensive system for air quality management onboard the ISS, focusing on the collection, processing, and reduction of moisture, contaminants, and CO2. This system consists of three interconnected nodes, each handling specific tasks to optimize air processing using advanced desiccant and adsorbent technologies. The following sections explain the functionalities of each component in detail.
 
 ---
 
-## Real-world Inspiration: 4-Bed CO2 Scrubber
-The **4-bed molecular sieve CO2 scrubber** on the ISS operates as follows:
+### System Components
 
-1. **Bed 1** removes water vapor from the incoming cabin air.
-2. **Bed 2** adsorbs CO2 using zeolite crystals.
-3. While Beds 1 and 2 operate, Beds 3 and 4 regenerate:
-    - **Bed 3** releases captured water vapor back into the cabin air.
-    - **Bed 4** desorbs CO2 into space via vacuum exposure.
-4. The system periodically switches roles between the beds to ensure continuous operation.
+### 1. Air Collection and Publishing Node
 
-Key advantages include:
-- **Closed-loop operation**: No consumable chemicals are required.
-- **Water conservation**: Captured water vapor is returned to the cabin.
+#### Purpose
+This node simulates the collection of unprocessed air onboard the ISS, which contains moisture, CO2, and various contaminants. The air is continuously published on the `/unpure_air` topic, providing real-time data for downstream processing. This node also manages the entire system by triggering the reduction of CO2 using desiccant and adsorbent technologies.
 
----
-
-## Simulation Design
-The ARS simulation consists of two main ROS 2 nodes:
-
-1. **ARS System Node (`ars_system`)**:
-   - Monitors atmospheric conditions (CO2, temperature, humidity).
-   - Detects critical CO2 levels and triggers the baking process.
-   - Publishes real-time environmental data.
-
-2. **Baking Process Node (`baking_process`)**:
-   - Simulates the CO2 scrubbing process using zeolite beds.
-   - Handles requests from the ARS system node to reduce CO2 levels.
+#### Functionality
+- **Publishes Custom Message**: A custom message `AirData.msg` encapsulates the following properties of the air:
+  - **CO2 Content**: The amount of carbon dioxide in grams.
+  - **Moisture**: Percentage of moisture in the air.
+  - **Contaminants**: Percentage of contaminants in the air.
+  - **Flow Rate**: Standard cubic feet per minute (SCFM).
+  - **Temperature**: Cabin temperature in degrees Celsius.
+  - **Pressure**: Cabin pressure in mmHg.
+- **Topic**: Publishes this data on the `/unpure_air` topic.
+- **Control Role**: Acts as a controller node by triggering two servers:
+  - **Desiccant Bed Server**: Handles moisture and contaminant reduction.
+  - **Adsorbent Bed Server**: Handles CO2 reduction.
 
 ---
 
-## System Workflow
+### 2. Desiccant Bed Node
 
-### 1. **Monitoring and Publishing Environmental Data**
-The ARS system node continuously:
-- Simulates the increase in CO2 levels due to crew metabolism.
-- Simulates temperature and humidity fluctuations.
-- Publishes the environmental data to the topic `/ars_system`.
+#### Purpose
+This node acts as a server that reduces moisture and contaminants from the air received from the `/unpure_air` topic. It ensures that only the CO2 content is retained for further processing while publishing the processed data.
 
-### 2. **Critical CO2 Threshold Detection**
-When the CO2 level exceeds a critical threshold:
-- The ARS system node logs a warning.
-- Sends a request to the baking process node to initiate CO2 scrubbing.
-
-### 3. **CO2 Scrubbing Process**
-The baking process node:
-- Simulates the adsorption of CO2 using zeolite beds.
-- Returns the reduced CO2 level and process status to the ARS system node.
-
-### 4. **CO2 Level Update and Publishing**
-- The ARS system node updates its CO2 level based on the response from the baking process node.
-- Resumes publishing the updated environmental data.
+#### Functionality
+- **Subscriber**: Subscribes to the `/unpure_air` topic and processes the incoming air data.
+- **Reduction**:
+  - **Moisture Content**: Reduced based on the desiccant bed's efficiency rate (e.g., 95% removal).
+  - **Contaminants**: Reduced based on the removal efficiency (e.g., 90% removal).
+- **Publisher**: Publishes the processed air data (retaining only CO2 content) on the `/removed_moisture` topic.
+- **Server Role**: Operates as a server that can be triggered by the Air Collection Node for activation and deactivation.
 
 ---
 
-## ROS 2 Topics
+### 3. Adsorbent Bed Node
 
-### Published Topics
-1. **`/ars_system`**:
-   - **Type**: `demo_nova_sanctum/msg/ARS`
-   - **Description**: Publishes real-time environmental data, including:
-     - Current CO2 level (ppm).
-     - Temperature (°C) with variance.
-     - Humidity (%) with variance.
+#### Purpose
+This node processes the reduced air from the desiccant node and performs CO2 reduction in two ways:
+1. Sending a portion of the CO2 to space.
+2. Retaining a portion of the CO2 for further reactions with hydrogen to generate methane and water.
 
----
-
-## ROS 2 Services
-
-### Provided Services
-1. **`/check_efficiency`** (Baking Process Node):
-   - **Type**: `demo_nova_sanctum/srv/Bake.srv`
-   - **Description**: Handles CO2 reduction requests.
-     - **Request**: Takes in CO2 levels
-     - **Response**:
-       - `success`: Boolean indicating if the baking was successful.
-       - `message`: Status message describing the result.
-       - `reduced_level`: Reduced carbon levels 
+#### Functionality
+- **Subscriber**: Subscribes to the `/removed_moisture` topic to receive air data with reduced moisture and contaminants.
+- **CO2 Processing**:
+  - **Stream 1**: CO2 sent to space for removal.
+  - **Stream 2**: CO2 retained and published on the `/processed_co2` topic for use in the water recovery system.
+- **Server Role**: Operates as a server triggered by the Air Collection Node for activation and deactivation.
 
 ---
 
-## Code Implementation
+## System Flow
 
-### ARS System Node (`ars_system`)
-The **ARS system node** simulates and publishes environmental conditions:
+### Step 1: Air Collection
+- The Air Collection Node continuously gathers air data and publishes it to the `/unpure_air` topic.
+- Once the air data exceeds a defined threshold (e.g., tank capacity), the node triggers the desiccant and adsorbent servers for air processing.
 
-1. **Initialization**:
-   - Parameters (e.g., `initial_co2_level`, `critical_threshold`) are loaded from a YAML file.
+### Step 2: Moisture and Contaminant Reduction
+- The Desiccant Bed Node, upon activation, subscribes to the `/unpure_air` topic, processes the air to remove moisture and contaminants, and publishes the CO2 content on the `/removed_moisture` topic.
 
-2. **Simulation**:
-   - CO2 levels increase over time.
-   - Temperature and humidity fluctuate randomly within a defined range.
-
-3. **Critical CO2 Detection**:
-   - When CO2 exceeds the threshold, a request is sent to the baking process node.
-
-4. **Publishing**:
-   - Publishes updated environmental data on `/ars_system`.
-
-### Baking Process Node (`baking_process`)
-The **baking process node** simulates the CO2 scrubbing process:
-
-1. **CO2 Reduction**:
-   - Simulates an 80% chance of successfully reducing CO2 by 30%. 
-     - [TODO: Enchancement for finding the fault of the system]
-
-2. **Response Handling**:
-   - Returns the updated CO2 level and success status to the ARS system node.
+### Step 3: CO2 Reduction
+- The Adsorbent Bed Node, upon activation, subscribes to the `/removed_moisture` topic, processes the CO2 content by splitting it into two streams, and publishes the retained CO2 on the `/processed_co2` topic for further utilization.
 
 ---
 
-## Parameters
+## Custom Message Definition
 
-### YAML Configuration
-Parameters are configured via a YAML file (`config/ars_params.yaml`):
- - Need to update this for realistic scenario (VERSION 2)
-
-```yaml
-ars_system:
-  initial_co2_level: 400.0
-  increase_rate: 5.0
-  critical_threshold: 800.0
-  bake_reduction: 300.0
-  scrubber_efficiency: 0.9
-  station_temperature: 22.0
-  station_humidity: 50.0
-```
-
----
-
-## Running the Simulation
-
-### Step 1: Build the Package
-```bash
-colcon build
-```
-
-### Step 2: Source the Workspace
-```bash
-source install/setup.bash
-```
-
-### Step 3: Launch the Nodes
-```bash
-ros2 launch demo_nova_system ars_system.launch.py
-```
-
----
-
-## Expected Logs
-
-### ARS System Node
+**File**: `msg/AirData.msg`
 ```plaintext
-[INFO] [ars_system]: AIR REVITALIZATION SYSTEM INITIALIZED
-[WARN] [ars_system]: Critical CO2 level reached: 800.00 ppm. Immediate action required!
-[INFO] [ars_system]: Sending request to bake CO2.
-[INFO] [ars_system]: Bake process successful. Initial CO2 level: 800.00 ppm. Reduced to: 560.00 ppm.
-```
-
-### Baking Process Node
-```plaintext
-[ars_system-1] [INFO] [1736098362.184649544] [ars_system]: Bake process successful: Baking CO2 successful. Initial CO2 level: 657.50 ppm. Reduced to: 591.75 ppm.
-[ars_system-1] [WARN] [1736098363.183367642] [ars_system]: Critical CO2 level reached: 596.75 ppm. Immediate action required!
-[ars_system-1] [INFO] [1736098363.183905755] [ars_system]: Co2: 596.75 ppm 
-
-
+float64 co2_mass           # Mass of CO2 in grams
+float64 moisture_content   # Moisture content as a percentage
+float64 contaminants       # Contaminants as a percentage
+float64 flow_rate          # Flow rate in SCFM
+float64 temperature        # Temperature in Celsius
+float64 pressure           # Pressure in mmHg
 ```
 
 ---
 
-## Future Enhancements and TODO
-1. **Extended Parameterization**:
-   - Include dynamic thresholds based on mission conditions.
-2. **Fault Tolerance**:
-   - Simulate sensor failures and degraded performance.
-3. **Integration with Other ECLSS Subsystems**:
-   - Combine with oxygen generation and water recovery systems.
+## Services
+
+### Desiccant Server Service (`std_srvs/Trigger`)
+- **Purpose**: Activated by the Air Collection Node to reduce moisture and contaminants.
+
+### Adsorbent Server Service (`std_srvs/Trigger`)
+- **Purpose**: Activated by the Air Collection Node to perform CO2 reduction.
+
+---
+
+## Benefits of Version 2
+
+1. **Optimized Resource Management**
+   - The system ensures efficient removal of unwanted air components while retaining valuable CO2 for further use.
+
+2. **Modularity**
+   - Each node is independently responsible for a specific aspect of air processing, making the system scalable and maintainable.
+
+3. **Real-Time Processing**
+   - Air data is processed in real-time with precise control over the activation and deactivation of servers.
 
 ---
 
 ## References
-- **NASA-STD-3001**: Technical standards for environmental control systems.
-- **ISS ECLSS Documentation**: 4-bed molecular sieve CO2 scrubber process.
+
+For detailed information on sensors and bed performance, refer to:
+- **4BCO2.EDU.Performance_ICES-2021.pdf**
 
 ---
 
+This documentation reflects the updated architecture and flow for **Version 2** of the ARS module simulation, ensuring engineers can understand, extend, and effectively use this system in their research and development.
 

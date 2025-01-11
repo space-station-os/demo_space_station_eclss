@@ -20,4 +20,8 @@
     #power_consumption
     power_consumption: 1 #kW
 
+    #Removal efficiency
+    to_space : 0.50 
+    to_sabatier: 0.50
+
     

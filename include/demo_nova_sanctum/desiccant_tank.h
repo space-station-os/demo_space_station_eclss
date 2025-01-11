@@ -53,6 +53,8 @@ private:
   void trigger_callback(const std_srvs::srv::Trigger::Request::SharedPtr request,
                         const std_srvs::srv::Trigger::Response::SharedPtr response);
 
+  void trigger_server(const std::string &server_name, const rclcpp::Client<std_srvs::srv::Trigger>::SharedPtr &client);
+  
   void deactivate();
 
   // Parameters for removal efficiency
@@ -71,9 +73,12 @@ private:
   rclcpp::Publisher<demo_nova_sanctum::msg::AirData>::SharedPtr removed_moisture_publisher_; ///< Publisher to `/removed_moisture`
   rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr trigger_server_; ///< Service server for `/desiccant_server`
   rclcpp::TimerBase::SharedPtr timer_; ///< Timer for periodic operations
+  rclcpp::Client<std_srvs::srv::Trigger>::SharedPtr adsorbent_server_client_;
 
   // State variables
   bool is_active_; ///< Indicates whether the desiccant server is active
+
+  std::mutex data_mutex_; ///< Mutex to protect shared air data variables
 };
 
 #endif // DEMO_NOVA_SANCTUM_DESICCANT_TANK_HPP_
