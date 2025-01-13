@@ -1,5 +1,0 @@
-float64 co2_level   # Current CO2 level in ppm
----
-bool success        # Whether the baking process succeeded
-string message      # A status message describing the result
-float64 reduced_level # The reduced CO2 level after baking

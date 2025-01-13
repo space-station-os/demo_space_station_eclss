@@ -49,7 +49,7 @@ void DesiccantServer::process_air_data() {
   // Publish the processed data
   demo_nova_sanctum::msg::AirData processed_msg;
   processed_msg.header.stamp = this->get_clock()->now();
-  processed_msg.frame_id = "Desiccant Bed";
+  processed_msg.header.frame_id = "Desiccant Bed";
   processed_msg.co2_mass = co2_;
   processed_msg.moisture_content = moisture_content_;
   processed_msg.contaminants = contaminants_;

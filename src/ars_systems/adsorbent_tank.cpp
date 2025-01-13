@@ -76,7 +76,7 @@ void AdsorbentBed::process_co2() {
     demo_nova_sanctum::msg::AirData processed_msg;
 
     processed_msg.header.stamp = this->get_clock()->now();
-    processed_msg.frame_id = "Adsorbent Bed";
+    processed_msg.header.frame_id = "Adsorbent Bed";
     processed_msg.co2_mass = retained_co2_cumulative_; // Publish cumulative retained CO2
     processed_msg.moisture_content = moisture_content_;       
     processed_msg.contaminants = contaminants_;           

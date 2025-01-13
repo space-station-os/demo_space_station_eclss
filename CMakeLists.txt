@@ -16,14 +16,14 @@ find_package(std_srvs REQUIRED)
 # find_package(<dependency> REQUIRED)
 
 set(msg_files
-  "src/ars_systems/msg/ARS.msg"
-  "src/ars_systems/msg/Bake.srv"
+  
   "src/wrs_systems/msg/WasteCollection.msg"
   "src/wrs_systems/msg/ProcessWater.msg"
   "src/wrs_systems/msg/StorageStatus.msg"
   "src/wrs_systems/msg/Filteration.srv"
 
   "src/ars_systems/msg/AirData.msg"
+  "src/ors_systems/msg/Sabatier.msg"
 
 
 )
@@ -54,6 +54,13 @@ ament_target_dependencies(adsorbent std_srvs rosidl_default_generators rclcpp se
 rosidl_target_interfaces(adsorbent ${PROJECT_NAME} "rosidl_typesupport_cpp")
 
 
+
+add_executable(sabatier src/ors_systems/src/sabatier.cpp)
+ament_target_dependencies(sabatier std_srvs rosidl_default_generators rclcpp sensor_msgs)
+
+rosidl_target_interfaces(sabatier ${PROJECT_NAME} "rosidl_typesupport_cpp")
+
+
 add_executable(waste_collector src/wrs_systems/src/waste_collection.cpp)
 ament_target_dependencies(waste_collector rosidl_default_generators rclcpp sensor_msgs)
 rosidl_target_interfaces(waste_collector ${PROJECT_NAME} "rosidl_typesupport_cpp")
@@ -71,7 +78,7 @@ install(TARGETS
   collector
   desiccant
   adsorbent
-  
+  sabatier
   waste_collector
   filteration 
   process_water
