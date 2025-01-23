@@ -110,6 +110,8 @@ void IonizationBed::publish_processed_water() {
     ionized_water_pub_->publish(message);
 
     RCLCPP_INFO(this->get_logger(), "Processed water published with 0 contaminants and iodine.");
+    RCLCPP_INFO(this->get_logger(), "Ionization bed deactivated.");
+    RCLCPP_INFO(this->get_logger(), "Water level remaining: %.2f", water_);
 }
 
 // Service callback to activate the ionization bed
