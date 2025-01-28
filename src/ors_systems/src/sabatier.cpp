@@ -5,7 +5,7 @@
 Sabatier::Sabatier()
     : Node("sabatier"),
       co2_mass_(0.0),
-      h2_mass_(0.0),
+      h2_mass_(300.0),
       moisture_content_(0.0),
       contaminants_(0.0),
       dew_point_(0.0),
